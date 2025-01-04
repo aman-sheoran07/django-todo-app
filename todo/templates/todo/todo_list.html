@@ -1,0 +1,50 @@
+{% extends 'todo/base.html' %}
+
+{% block title %}My Todos{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <h2>My Todos</h2>
+    </div>
+    <div class="col text-end">
+        <a href="{% url 'todo_create' %}" class="btn btn-primary">Add New Todo</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        {% if todos %}
+        <div class="list-group">
+            {% for todo in todos %}
+            <div class="list-group-item {% if todo.completed %}bg-light{% endif %}">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                    <h5 class="mb-1 {% if todo.completed %}text-muted{% endif %}">{{ todo.title }}</h5>
+                    <div>
+                        <form method="post" action="{% url 'todo_toggle' todo.pk %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm {% if todo.completed %}btn-success{% else %}btn-outline-success{% endif %}">
+                                {% if todo.completed %}Done{% else %}Mark Done{% endif %}
+                            </button>
+                        </form>
+                        <a href="{% url 'todo_update' todo.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <form method="post" action="{% url 'todo_delete' todo.pk %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                        </form>
+                    </div>
+                </div>
+                <p class="mb-1">{{ todo.description }}</p>
+                <small class="text-muted">
+                    Priority: {{ todo.get_priority_display }} |
+                    Due: {% if todo.due_date %}{{ todo.due_date|date:"M d, Y" }}{% else %}No due date{% endif %}
+                </small>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-center">No todos yet. Create one!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
